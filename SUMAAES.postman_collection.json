@@ -1,0 +1,31 @@
+{
+	"variables": [],
+	"info": {
+		"name": "SUMAAES",
+		"_postman_id": "58b1c6ec-261a-0db0-be3e-e0abd012ef9a",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SUMA",
+			"request": {
+				"url": "http://{{dockerip}}:9090/suma",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"num1\" : \"1\",\n\t\"num2\" : \"4\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
