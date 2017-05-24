@@ -17,11 +17,13 @@ import domain.Convenio.IntermediateRoutingService;
 import domain.Convenio.entity.Compensacion;
 import domain.Convenio.entity.Pago;
 import domain.Convenio.entity.Respuesta;
+import servicios.dispatcher.DispatcherServiceProvider;
+import servicios.localizacion.LocalizacionServiceProvider;
+import servicios.transformacion.TransformationServiceProvider;
 
 import java.time.LocalDate;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Created by AHernandezS on 22/03/2017.
@@ -29,7 +31,9 @@ import java.util.concurrent.ExecutionException;
 
 public class HttpAesDirective extends AllDirectives {
 
-    IntermediateRoutingService intermediateRouting = new IntermediateRoutingServiceProvider();
+    private final IntermediateRoutingService intermediateRouting = new IntermediateRoutingServiceProvider(
+            new LocalizacionServiceProvider(), new TransformationServiceProvider(), new DispatcherServiceProvider()
+    );
 
     public static void main(String[] args) throws Exception {
         ActorSystem system = ActorSystem.create("routes");
@@ -82,7 +86,7 @@ public class HttpAesDirective extends AllDirectives {
 
     private Route handleCompensarPagoFactura(Compensacion compensacion) {
         System.out.println(LocalDate.now() + ": handleCompensarPagoFactura ");
-        CompletableFuture<Respuesta> response = intermediateRouting.pagoFactura(compensacion);
+        CompletableFuture<Respuesta> response = intermediateRouting.compensarPagoFactura(compensacion);
         Respuesta respuesta = response.join();
         return complete(StatusCodes.OK, respuesta, Jackson.<Respuesta>marshaller());
     }
