@@ -1,4 +1,4 @@
-package core;
+package http.core;
 
 import java.io.IOException;
 import java.text.MessageFormat;

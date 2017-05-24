@@ -12,9 +12,10 @@ import akka.http.javadsl.model.StatusCodes;
 import akka.http.javadsl.server.*;
 import akka.stream.ActorMaterializer;
 import akka.stream.javadsl.Flow;
-import domain.calculadora.Calculadora;
-import domain.calculadora.Suma;
-import util.JacksonJdk8;
+import domain.Convenio.IntermediateRouting;
+import domain.Convenio.entity.Compensacion;
+import domain.Convenio.entity.Factura;
+import domain.Convenio.entity.Pago;
 
 import java.time.LocalDate;
 import java.util.concurrent.CompletionStage;
@@ -25,7 +26,7 @@ import java.util.concurrent.CompletionStage;
 
 public class HttpAesDirective extends AllDirectives {
 
-    Calculadora calculadora = new Calculadora();
+    IntermediateRouting intermediateRouting = new IntermediateRouting();
 
     public static void main(String[] args) throws Exception {
         ActorSystem system = ActorSystem.create("routes");
@@ -48,20 +49,34 @@ public class HttpAesDirective extends AllDirectives {
 
     private Route createRoute() {
         return route(
-                pathPrefix("factura", () ->
-                        route(
-                                get(() -> route(path(cuestionarioID -> handleSuma(null)))),
-                                put(() -> route(pathPrefix(facturaId -> route(
-                                        pathPrefix("pagar", () -> handleSuma(null)),
-                                        pathPrefix("compensar", () -> handleSuma(null))
-                                )))))
+                pathPrefix("servicios", () ->
+                        pathPrefix("factura", () ->
+                                route(
+                                        get(() -> route(path(idFactura -> handleConsultarFactura(idFactura))))
+                                        ,
+                                        put(() -> route(pathPrefix(facturaId -> route(
+                                                pathPrefix("pagar", () -> handlePagarFactura(null)),
+                                                pathPrefix("compensar", () -> handleCompensarPagoFactura(null))
+                                        ))))
+                                )
+                        )
                 )
         );
     }
 
-    private Route handleSuma(Suma suma) {
-        System.out.println(LocalDate.now() + ": handleSuma ");
-        return complete(StatusCodes.OK, calculadora.suma(suma), Jackson.<Integer>marshaller());
+    private Route handleConsultarFactura(String idFactura) {
+        System.out.println(LocalDate.now() + ": handleConsultarFactura ");
+        return complete(StatusCodes.OK, intermediateRouting.consultarFactura(idFactura), Jackson.<Factura>marshaller());
+    }
+
+    private Route handlePagarFactura(Pago pago) {
+        System.out.println(LocalDate.now() + ": handlePagarFactura ");
+        return complete(StatusCodes.OK, intermediateRouting.pagoFactura(pago), Jackson.<Boolean>marshaller());
+    }
+
+    private Route handleCompensarPagoFactura(Compensacion compensacion) {
+        System.out.println(LocalDate.now() + ": handleCompensarPagoFactura ");
+        return complete(StatusCodes.OK, intermediateRouting.compensarPagoFactura(compensacion), Jackson.<Boolean>marshaller());
     }
 
 }

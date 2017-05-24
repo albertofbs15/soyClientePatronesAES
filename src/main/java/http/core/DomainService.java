@@ -1,4 +1,4 @@
-package core;
+package http.core;
 
 import akka.actor.Extension;
 import scala.concurrent.Await;
