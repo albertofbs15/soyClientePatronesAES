@@ -37,7 +37,7 @@ public class HttpAesDirective extends AllDirectives {
 
         final Flow<HttpRequest, HttpResponse, NotUsed> routeFlow = app.createRoute().flow(system, materializer);
         final CompletionStage<ServerBinding> binding = http.bindAndHandle(routeFlow,
-                ConnectHttp.toHost("0.0.0.0", 9090), materializer);
+                ConnectHttp.toHost("localhost", 9090), materializer);
 
         System.out.println("Server online at http://localhost:9090/\nPress RETURN to stop...");
         System.in.read();
@@ -48,10 +48,13 @@ public class HttpAesDirective extends AllDirectives {
 
     private Route createRoute() {
         return route(
-                pathPrefix("suma", () ->
+                pathPrefix("factura", () ->
                         route(
-                                post(() -> entity(JacksonJdk8.unmarshaller(Suma.class), hacerSuma -> handleSuma(hacerSuma)))
-                        )
+                                get(() -> route(path(cuestionarioID -> handleSuma(null)))),
+                                put(() -> route(pathPrefix(facturaId -> route(
+                                        pathPrefix("pagar", () -> handleSuma(null)),
+                                        pathPrefix("compensar", () -> handleSuma(null))
+                                )))))
                 )
         );
     }
